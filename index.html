@@ -710,6 +710,36 @@
             padding: 8px;
             background: #FFF;
         }
+        
+        /* Remover bordas divisórias no PDF - manter apenas backgrounds para separação visual */
+        .pdf-mode .card,
+        .pdf-mode .aviso,
+        .pdf-mode .result,
+        .pdf-mode .footer,
+        .pdf-mode .photo-gallery,
+        .pdf-mode .photo-item,
+        .pdf-mode .plant-card,
+        .pdf-mode .result-box,
+        .pdf-mode input,
+        .pdf-mode select,
+        .pdf-mode textarea,
+        .pdf-mode .field,
+        .pdf-mode .vagem-row,
+        .pdf-mode .photo-box,
+        .pdf-mode hr {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        
+        /* Remover linhas horizontais e separadores */
+        .pdf-mode .plant-header,
+        .pdf-mode .plant-total,
+        .pdf-mode .entrenos-row {
+            border-top: none !important;
+            border-bottom: none !important;
+        }
+        
         .pdf-mode .card {
             border-radius: 12px;
             margin-bottom: 4px;
