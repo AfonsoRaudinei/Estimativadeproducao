@@ -1126,9 +1126,11 @@
             
             container.innerHTML = '';
             
-            plants.forEach((plant, index) => {
-                const card = document.createElement('div');
-                card.className = 'plant-card';
+            const numPlantas = parseInt(document.getElementById('plantasAval').value) || 1;
+            
+            if (modoContagem === 'unica') {
+                // Modo único: APENAS 1 CARD independente do número de plantas
+                const plant = plants[0] || { v4: 0, v3: 0, v2: 0, v1: 0, entrenos: 0 };
                 
                 const v4Total = (plant.v4 || 0) * 4;
                 const v3Total = (plant.v3 || 0) * 3;
@@ -1137,33 +1139,39 @@
                 const totalGraos = v4Total + v3Total + v2Total + v1Total;
                 const totalVagens = (plant.v4 || 0) + (plant.v3 || 0) + (plant.v2 || 0) + (plant.v1 || 0);
                 
+                const card = document.createElement('div');
+                card.className = 'plant-card';
+                
                 card.innerHTML = `
-                    <div class="plant-header">
-                        <div class="plant-title">Planta ${index + 1}</div>
+                    <div class="plant-header">Contagem Única (${numPlantas} ${numPlantas === 1 ? 'planta' : 'plantas'})</div>
+                    
+                    <div class="vagem-row">
+                        <label>4 grãos</label>
+                        <input type="number" inputmode="numeric" min="0" value="${plant.v4 || 0}" onchange="updatePlant(0, 'v4', this.value)">
+                        <div class="vagem-result">${v4Total}</div>
                     </div>
                     
                     <div class="vagem-row">
-                        <label>Vagens 4 grãos</label>
-                        <input type="number" min="0" value="${plant.v4 || 0}" oninput="updatePlant(${index}, 'v4', this.value)">
-                        <div class="vagem-result">= ${v4Total}g</div>
+                        <label>3 grãos</label>
+                        <input type="number" inputmode="numeric" min="0" value="${plant.v3 || 0}" onchange="updatePlant(0, 'v3', this.value)">
+                        <div class="vagem-result">${v3Total}</div>
                     </div>
                     
                     <div class="vagem-row">
-                        <label>Vagens 3 grãos</label>
-                        <input type="number" min="0" value="${plant.v3 || 0}" oninput="updatePlant(${index}, 'v3', this.value)">
-                        <div class="vagem-result">= ${v3Total}g</div>
+                        <label>2 grãos</label>
+                        <input type="number" inputmode="numeric" min="0" value="${plant.v2 || 0}" onchange="updatePlant(0, 'v2', this.value)">
+                        <div class="vagem-result">${v2Total}</div>
                     </div>
                     
                     <div class="vagem-row">
-                        <label>Vagens 2 grãos</label>
-                        <input type="number" min="0" value="${plant.v2 || 0}" oninput="updatePlant(${index}, 'v2', this.value)">
-                        <div class="vagem-result">= ${v2Total}g</div>
+                        <label>1 grão</label>
+                        <input type="number" inputmode="numeric" min="0" value="${plant.v1 || 0}" onchange="updatePlant(0, 'v1', this.value)">
+                        <div class="vagem-result">${v1Total}</div>
                     </div>
                     
-                    <div class="vagem-row">
-                        <label>Vagens 1 grão</label>
-                        <input type="number" min="0" value="${plant.v1 || 0}" oninput="updatePlant(${index}, 'v1', this.value)">
-                        <div class="vagem-result">= ${v1Total}g</div>
+                    <div class="entrenos-row">
+                        <label>Entrenós/planta (opcional)</label>
+                        <input type="number" inputmode="numeric" min="0" value="${plant.entrenos || ''}" onchange="updatePlant(0, 'entrenos', this.value)" placeholder="—">
                     </div>
                     
                     <div class="plant-total">
@@ -1173,7 +1181,61 @@
                 `;
                 
                 container.appendChild(card);
-            });
+                
+            } else {
+                // Modo individual: UM CARD POR PLANTA
+                plants.forEach((plant, index) => {
+                    const v4Total = (plant.v4 || 0) * 4;
+                    const v3Total = (plant.v3 || 0) * 3;
+                    const v2Total = (plant.v2 || 0) * 2;
+                    const v1Total = (plant.v1 || 0) * 1;
+                    const totalGraos = v4Total + v3Total + v2Total + v1Total;
+                    const totalVagens = (plant.v4 || 0) + (plant.v3 || 0) + (plant.v2 || 0) + (plant.v1 || 0);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'plant-card';
+                    
+                    card.innerHTML = `
+                        <div class="plant-header">Planta ${index + 1}</div>
+                        
+                        <div class="vagem-row">
+                            <label>4 grãos</label>
+                            <input type="number" inputmode="numeric" min="0" value="${plant.v4 || 0}" onchange="updatePlant(${index}, 'v4', this.value)">
+                            <div class="vagem-result">${v4Total}</div>
+                        </div>
+                        
+                        <div class="vagem-row">
+                            <label>3 grãos</label>
+                            <input type="number" inputmode="numeric" min="0" value="${plant.v3 || 0}" onchange="updatePlant(${index}, 'v3', this.value)">
+                            <div class="vagem-result">${v3Total}</div>
+                        </div>
+                        
+                        <div class="vagem-row">
+                            <label>2 grãos</label>
+                            <input type="number" inputmode="numeric" min="0" value="${plant.v2 || 0}" onchange="updatePlant(${index}, 'v2', this.value)">
+                            <div class="vagem-result">${v2Total}</div>
+                        </div>
+                        
+                        <div class="vagem-row">
+                            <label>1 grão</label>
+                            <input type="number" inputmode="numeric" min="0" value="${plant.v1 || 0}" onchange="updatePlant(${index}, 'v1', this.value)">
+                            <div class="vagem-result">${v1Total}</div>
+                        </div>
+                        
+                        <div class="entrenos-row">
+                            <label>Entrenós/planta (opcional)</label>
+                            <input type="number" inputmode="numeric" min="0" value="${plant.entrenos || ''}" onchange="updatePlant(${index}, 'entrenos', this.value)" placeholder="—">
+                        </div>
+                        
+                        <div class="plant-total">
+                            <div class="plant-total-label">${totalVagens} vagens</div>
+                            <div class="plant-total-value">${totalGraos} grãos</div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            }
         }
         
         function updatePlant(index, field, value) {
