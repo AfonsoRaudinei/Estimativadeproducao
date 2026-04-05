@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Indie+Flower&display=swap');
+        
         :root {
             --green: #34C759;
             --green-dark: #1B4332;
@@ -707,8 +709,19 @@
             margin: 0;
         }
         .pdf-mode .pdf-content {
-            padding: 8px;
-            background: #FFF;
+            padding: 8px 8px 8px 35px;
+            background: 
+                /* Margem vermelha */
+                linear-gradient(90deg, transparent 25px, #FF6B6B 25px, #FF6B6B 27px, transparent 27px),
+                /* Linhas horizontais pautadas */
+                repeating-linear-gradient(
+                    transparent,
+                    transparent 27px,
+                    #E0E0E0 27px,
+                    #E0E0E0 28px
+                );
+            background-color: #FEFEF8; /* Papel levemente amarelado */
+            position: relative;
         }
         
         /* Remover bordas divisórias no PDF - manter apenas backgrounds para separação visual */
@@ -738,6 +751,46 @@
         .pdf-mode .entrenos-row {
             border-top: none !important;
             border-bottom: none !important;
+        }
+        
+        /* === ESTILO CADERNO DE CAMPO === */
+        
+        /* Fonte manuscrita estilo caderno */
+        .pdf-mode * {
+            font-family: 'Patrick Hand', 'Indie Flower', cursive !important;
+            color: #2C3E50 !important;
+        }
+        
+        /* Backgrounds transparentes sobre as linhas */
+        .pdf-mode .card,
+        .pdf-mode .plant-card,
+        .pdf-mode .result-box {
+            background: transparent !important;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Aviso com fundo amarelo suave (marca-texto) */
+        .pdf-mode .aviso {
+            background: rgba(255, 251, 235, 0.6) !important;
+        }
+        
+        /* Resultado sem background (escrever direto nas linhas) */
+        .pdf-mode .result {
+            background: transparent !important;
+        }
+        
+        /* Destaque verde suave no resultado principal */
+        .pdf-mode .result-main {
+            background: rgba(232, 245, 233, 0.5) !important;
+        }
+        
+        /* Números maiores e mais bold (estilo caneta) */
+        .pdf-mode .result-value,
+        .pdf-mode .val,
+        .pdf-mode input {
+            font-weight: 700 !important;
+            font-size: 1.1em !important;
         }
         
         .pdf-mode .card {
@@ -1345,6 +1398,7 @@
             const plantasHa = calcPlantasHa();
             const pmg = parseFloat(document.getElementById('pmg').value) || 0;
             const p = parseFloat(document.getElementById('perdas').value) || 0;
+            const numPlantasAval = parseInt(document.getElementById('plantasAval').value) || 1;
             
             // Calcular médias das plantas avaliadas
             if (plants.length === 0) {
@@ -1360,6 +1414,8 @@
             let totalVagens = 0;
             let totalGraos = 0;
             
+            // No modo único: soma tudo de uma planta só
+            // No modo individual: soma de todas as plantas
             plants.forEach(plant => {
                 const v = (plant.v4 || 0) + (plant.v3 || 0) + (plant.v2 || 0) + (plant.v1 || 0);
                 const g = (plant.v4 || 0) * 4 + (plant.v3 || 0) * 3 + (plant.v2 || 0) * 2 + (plant.v1 || 0) * 1;
@@ -1367,9 +1423,12 @@
                 totalGraos += g;
             });
             
-            const vagensMedia = totalVagens / plants.length;
+            // CORREÇÃO: Dividir pelo número REAL de plantas avaliadas
+            const divisor = modoContagem === 'unica' ? numPlantasAval : plants.length;
+            
+            const vagensMedia = totalVagens / divisor;
             const graosMedia = totalGraos / totalVagens || 0;
-            const graosPorPlanta = totalGraos / plants.length;
+            const graosPorPlanta = totalGraos / divisor;
             
             document.getElementById('vagens').textContent = vagensMedia.toFixed(1);
             document.getElementById('graos').textContent = graosMedia.toFixed(2);
@@ -1529,17 +1588,28 @@
             });
             
             try {
-                await new Promise(r => setTimeout(r, 400));
+                // Aguardar mais tempo para fonts carregarem
+                await new Promise(r => setTimeout(r, 1000));
+                
+                // Forçar reload das fontes
+                await document.fonts.ready;
                 
                 // Capturar todo o conteúdo de uma vez em alta resolução
                 const canvas = await html2canvas(content, {
                     scale: 2.8,
                     useCORS: true,
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: '#FEFEF8',
                     logging: false,
                     imageTimeout: 0,
                     allowTaint: true,
-                    windowHeight: content.scrollHeight
+                    windowHeight: content.scrollHeight,
+                    onclone: (clonedDoc) => {
+                        // Garantir que o background seja renderizado
+                        const clonedContent = clonedDoc.getElementById('content');
+                        if (clonedContent) {
+                            clonedContent.style.minHeight = content.scrollHeight + 'px';
+                        }
+                    }
                 });
                 
                 const { jsPDF } = window.jspdf;
